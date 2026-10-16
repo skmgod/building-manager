@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>건물관리</title>
+<style>
+:root{--y:#FFD400;--k:#1a1a1a;--g:#f4f4f2;--m:#8a8a85;--r:#e5484d}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#e9e9e6;font-family:'Malgun Gothic',system-ui,sans-serif;color:var(--k);display:flex;justify-content:center}
+#app{width:100%;max-width:440px;height:100dvh;background:var(--g);display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media(min-width:480px){#app{margin:14px 0;height:calc(100dvh - 28px);border-radius:28px;box-shadow:0 8px 30px #0002}}
+.top{background:var(--y);padding:16px 16px 12px;font-weight:800;font-size:20px;display:flex;justify-content:space-between;align-items:center;flex:none}
+.top small{font-weight:700;font-size:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{background:var(--k);color:var(--y);font-size:22px;font-weight:900;font-style:italic;letter-spacing:2px;line-height:1;padding:9px 13px 8px;border-radius:12px;transform:rotate(-4deg);box-shadow:4px 4px 0 var(--r),0 6px 14px #0004;text-shadow:2px 2px 0 var(--r)}
+#main{flex:1;overflow-y:auto;padding:12px 14px 90px}
+.tabs{display:flex;background:#fff;border-top:1px solid #eee;flex:none;padding-bottom:env(safe-area-inset-bottom)}
+.tabs div{flex:1;text-align:center;padding:8px 0 10px;font-size:11px;color:var(--m);font-weight:700;cursor:pointer}
+.tabs div b{display:block;font-size:18px;margin-bottom:2px;font-weight:400}
+.tabs .on{color:var(--k)}.tabs .on b{background:var(--y);width:38px;margin:0 auto 2px;border-radius:14px}
+.search{background:#fff;border-radius:14px;padding:0 14px;margin-bottom:10px;display:flex;gap:8px;border:2px solid var(--y);align-items:center}
+.search input{flex:1;border:0;outline:0;padding:11px 0;font:inherit;font-size:14px;background:transparent;min-width:0}
+.chips{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.chips span{background:#fff;border-radius:14px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.chips .on{background:var(--k);color:var(--y)}
+.cal{background:#fff;border-radius:16px;padding:10px}
+.mh{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:16px;margin-bottom:6px}
+.mh i{font-style:normal;padding:2px 14px;font-size:20px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:13px}
+.grid .d{color:var(--m);font-size:10px;font-weight:700;padding:3px}
+.grid span{height:40px;padding-top:7px;border-radius:12px;position:relative;cursor:pointer}
+.grid span.sel{background:var(--y);font-weight:800}
+.grid span.today:not(.sel){font-weight:800;box-shadow:inset 0 0 0 2px var(--y)}
+.grid .dot::after{content:"";position:absolute;left:50%;bottom:4px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--y);box-shadow:0 0 0 1px #0003}
+.grid .sel.dot::after{background:var(--k);box-shadow:none}
+.grid .dn::after{background:var(--k);box-shadow:none}
+.grid .sun{color:var(--r)}
+h3{font-size:13px;margin:14px 2px 7px;display:flex;justify-content:space-between}
+.card{background:#fff;border-radius:16px;padding:13px;margin-bottom:9px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;background:var(--y);white-space:nowrap}
+.tag.k{background:var(--k);color:#fff}.tag.g{background:#d9d9d4}
+.t{font-weight:800;font-size:15px}.s{font-size:12px;color:var(--m);margin-top:4px;line-height:1.5;word-break:break-all}
+.s a{color:var(--m)}
+.iss{font-size:14px;margin-top:6px;line-height:1.5;white-space:pre-wrap}
+.btns{display:flex;gap:6px;margin-top:10px}
+.b{flex:1;text-align:center;padding:10px 4px;border-radius:11px;background:var(--g);font-size:12px;font-weight:800;cursor:pointer;border:0;font-family:inherit;color:var(--k)}
+.b.k{background:var(--k);color:var(--y)}.b.y{background:var(--y)}.b.r{color:var(--r)}
+.big{display:block;width:100%;padding:13px;font-size:14px;margin-top:12px;border-radius:12px}
+.fab{position:absolute;right:18px;bottom:84px;width:54px;height:54px;border-radius:50%;background:var(--k);color:var(--y);font-size:30px;text-align:center;line-height:52px;box-shadow:0 4px 12px #0004;cursor:pointer;z-index:5}
+.empty{text-align:center;color:var(--m);font-size:13px;padding:26px 0}
+.sum{background:var(--k);color:#fff;border-radius:16px;padding:14px 16px;font-size:13px}
+.sum .mh{color:#fff;margin:0 0 4px}.sum b{color:var(--y);font-size:26px;display:block}
+.photos{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ph{width:62px;height:62px;border-radius:10px;background-size:cover;background-position:center;position:relative;cursor:pointer}
+.ph em{position:absolute;left:3px;bottom:3px;font-style:normal;font-size:9px;font-weight:800;background:var(--k);color:var(--y);padding:1px 5px;border-radius:6px}
+.ph u{position:absolute;right:-4px;top:-4px;width:18px;height:18px;border-radius:50%;background:var(--r);color:#fff;text-decoration:none;font-size:12px;line-height:18px;text-align:center}
+.add{width:62px;height:62px;border-radius:10px;border:2px dashed #ccc;color:var(--m);font-size:10px;font-weight:800;text-align:center;padding-top:10px;cursor:pointer;line-height:1.3}
+.add b{display:block;font-size:20px;line-height:1}
+.fld{display:flex;gap:8px;margin-top:8px;align-items:center}
+.fld label{width:70px;font-size:12px;font-weight:700;color:var(--m)}
+.fld input{flex:1;min-width:0}
+input,textarea,select{font:inherit;font-size:14px;border:1px solid #e5e5e0;border-radius:11px;padding:11px;background:#fff;outline:0;width:100%}
+input:focus,textarea:focus{border-color:var(--k)}
+.fld input.n{text-align:right;font-weight:800}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:16px;padding:12px 2px 0;margin-top:8px;border-top:1px dashed #ddd}
+.ov{position:absolute;inset:0;background:#0007;z-index:20;display:flex;align-items:flex-end}
+.sheet{background:var(--g);width:100%;max-height:92%;overflow-y:auto;border-radius:24px 24px 0 0;padding:16px 16px 22px}
+.sheet h2{font-size:18px;display:flex;justify-content:space-between;margin-bottom:6px}
+.sheet h2 i{font-style:normal;cursor:pointer;padding:0 6px}
+.sheet label.l{font-size:11px;font-weight:700;color:var(--m);display:block;margin:10px 0 4px}
+.tpl{display:flex;gap:6px;flex-wrap:wrap}.tpl span{background:#fff;border-radius:14px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer}.tpl .on{background:var(--k);color:var(--y)}
+.viewer{background:#000;align-items:center;justify-content:center}.viewer img{max-width:100%;max-height:100%}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--k);color:var(--y);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:800;z-index:40}
+</style></head><body>
+<div id="app">
+  <div class="top"><span class="brand"><span class="mark">SKM</span><span id="ttl">건물관리</span></span><small id="sub"></small></div>
+  <div id="main"></div>
+  <div class="fab" data-a="add">+</div>
+  <div class="tabs">
+    <div data-a="tab" data-v="cal"><b>📅</b>캘린더</div>
+    <div data-a="tab" data-v="list"><b>🛠</b>민원</div>
+    <div data-a="tab" data-v="bill"><b>💰</b>청구</div>
+  </div>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+</div>
+<script>
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const now=new Date(), TODAY=ymd(now);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const won=n=>(Number(n)||0).toLocaleString('ko-KR');
+const $=s=>document.querySelector(s);
+const KEY='building_mgmt_v1';
+let items=[];try{items=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+const S={tab:'cal',sel:TODAY,y:now.getFullYear(),m:now.getMonth(),by:now.getFullYear(),bm:now.getMonth(),q:'',chip:'all'};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(items));return true}catch(e){alert('저장 공간이 부족합니다. 오래된 사진을 지워주세요.');return false}}
+const get=id=>items.find(i=>i.id===id);
+const total=i=>(+i.amount)||0;
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;$('#app').appendChild(d);setTimeout(()=>d.remove(),1800)}
+
+function match(i){
+  if(S.chip==='wait'&&i.done)return false;
+  if(S.chip==='done'&&!i.done)return false;
+  if(S.chip==='unbilled'&&!(i.done&&!i.billed))return false;
+  const q=S.q.trim().toLowerCase();
+  if(!q)return true;
+  return [i.building,i.unit,i.phone,i.issue,i.memo,i.partsName].join(' ').toLowerCase().includes(q.replace(/-/g,'')) ||
+         [i.building,i.unit,i.phone,i.issue,i.memo,i.partsName].join(' ').toLowerCase().replace(/-/g,'').includes(q.replace(/-/g,''));
+}
+function card(i,showDate){
+  const st=i.billed?'<span class="tag g">청구완료</span>':i.done?'<span class="tag k">처리됨</span>':'<span class="tag">접수</span>';
+  const md=i.date.slice(5).replace('-','/');
+  return `<div class="card"><div class="row"><span class="t">${esc(i.building)} ${esc(i.unit)}</span>${st}</div>
+  <div class="s">${showDate?md+' · ':''}<a href="tel:${esc(i.phone)}">${esc(i.phone)||'전화번호 없음'}</a></div>
+  <div class="iss">${esc(i.issue)}</div>${i.memo?`<div class="s">📝 ${esc(i.memo)}</div>`:''}
+  <div class="btns">
+    ${i.done?(i.billed?'':`<button class="b y" data-a="gobill" data-id="${i.id}">청구 입력</button>`):`<button class="b k" data-a="done" data-id="${i.id}">처리완료</button>`}
+    <button class="b" data-a="sms" data-id="${i.id}">💬 문자</button>
+    <button class="b" data-a="edit" data-id="${i.id}">수정</button>
+    <button class="b r" data-a="del" data-id="${i.id}">삭제</button>
+  </div></div>`;
+}
+function listHtml(){
+  const q=S.q.trim();
+  let arr;
+  if(S.tab==='cal'&&!q&&S.chip==='all'){arr=items.filter(i=>i.date===S.sel);return `<h3><span>${+S.sel.slice(5,7)}월 ${+S.sel.slice(8)}일 민원 ${arr.length}건</span></h3>`+(arr.map(i=>card(i,false)).join('')||'<div class="empty">이 날짜에 민원이 없어요<br>＋ 버튼으로 접수하세요</div>')}
+  arr=items.filter(match).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  return `<h3><span>${q?'검색결과':'민원 목록'} ${arr.length}건</span></h3>`+(arr.map(i=>card(i,true)).join('')||'<div class="empty">없어요</div>');
+}
+function updList(){const e=$('#lb');if(e)e.innerHTML=listHtml();const c=$('#calbox');if(c)c.style.display=(S.q.trim()||S.chip!=='all')?'none':''}
+function calHtml(){
+  const first=new Date(S.y,S.m,1).getDay(),days=new Date(S.y,S.m+1,0).getDate();
+  const map={};items.forEach(i=>{const o=map[i.date]||(map[i.date]={w:0,d:0});i.done?o.d++:o.w++});
+  let h=['일','월','화','수','목','금','토'].map((d,k)=>`<div class="d ${k?'':'sun'}">${d}</div>`).join('');
+  for(let k=0;k<first;k++)h+='<span style="cursor:default"></span>';
+  for(let d=1;d<=days;d++){
+    const ds=S.y+'-'+pad(S.m+1)+'-'+pad(d),o=map[ds],c=[];
+    if((first+d-1)%7===0)c.push('sun');if(ds===S.sel)c.push('sel');if(ds===TODAY)c.push('today');
+    if(o)c.push('dot',o.w?'':'dn');
+    h+=`<span class="${c.join(' ')}" data-a="pick" data-v="${ds}">${d}</span>`;
+  }
+  return `<div class="cal"><div class="mh"><i data-a="prev">‹</i><span>${S.y}년 ${S.m+1}월</span><i data-a="next">›</i></div><div class="grid">${h}</div></div>`;
+}
+function searchBar(){
+  const ch=[['all','전체'],['wait','접수'],['done','처리됨'],['unbilled','미청구']];
+  return `<div class="search">🔍<input id="q" placeholder="건물 · 호수 · 전화번호 · 내용 검색" value="${esc(S.q)}"></div>
+  <div class="chips">${ch.map(c=>`<span class="${S.chip===c[0]?'on':''}" data-a="chip" data-v="${c[0]}">${c[1]}</span>`).join('')}</div>`;
+}
+function photosHtml(i,edit){
+  const ph=(i.photos||[]).map((p,k)=>`<div class="ph" style="background-image:url(${p.s})" data-a="view" data-id="${i.id}" data-k="${k}"><em>${p.k==='b'?'전':'후'}</em>${edit?`<u data-a="rmph" data-id="${i.id}" data-k="${k}">×</u>`:''}</div>`).join('');
+  return `<div class="photos">${ph}${edit?`<div class="add" data-a="addph" data-id="${i.id}" data-kind="b"><b>＋</b>수리 전</div><div class="add" data-a="addph" data-id="${i.id}" data-kind="a"><b>＋</b>수리 후</div>`:''}</div>`;
+}
+function billEdit(i){
+  return `<div class="card" id="c${i.id}"><div class="row"><span class="t">${esc(i.building)} ${esc(i.unit)}</span><span class="tag">미청구</span></div>
+  <div class="s">${i.date.slice(5).replace('-','/')} · ${esc(i.issue)}</div>
+  ${photosHtml(i,true)}
+  <div class="fld"><label>수리 내용</label><input data-f="partsName" data-id="${i.id}" placeholder="예) 밸브 교체" value="${esc(i.partsName)}"></div>
+  <div class="fld"><label>금액</label><input class="n" data-f="amount" data-id="${i.id}" inputmode="numeric" placeholder="0" value="${i.amount?won(i.amount):''}"></div>
+  <button class="b y big" data-a="savebill" data-id="${i.id}">청구 저장</button>
+  <button class="b big" data-a="sms" data-v="bill" data-id="${i.id}">💬 문자 보내기 (보내면 자동 청구)</button>
+  <div class="btns"><button class="b" data-a="undo" data-id="${i.id}">접수로 되돌리기</button><button class="b r" data-a="del" data-id="${i.id}">삭제</button></div></div>`;
+}
+function billDone(i){
+  return `<div class="card"><div class="row"><span class="t">${esc(i.building)} ${esc(i.unit)}</span><span class="t">${total(i)?won(total(i))+'원':'없음'}</span></div>
+  <div class="row" style="margin-top:4px"><span class="s">${i.date.slice(5).replace('-','/')} · ${esc(i.issue)}</span><span class="tag ${i.paid?'g':'k'}">${i.paid?'입금완료':'입금대기'}</span></div>
+  ${i.partsName?`<div class="s">🔧 ${esc(i.partsName)}</div>`:''}
+  ${(i.photos||[]).length?photosHtml(i,false):''}
+  <div class="btns"><button class="b ${i.paid?'':'y'}" data-a="paid" data-id="${i.id}">${i.paid?'입금 취소':'입금완료'}</button><button class="b" data-a="sms" data-v="bill" data-id="${i.id}">💬 문자</button></div>
+  <div class="btns"><button class="b" data-a="unbill" data-id="${i.id}">수정</button><button class="b r" data-a="del" data-id="${i.id}">삭제</button></div></div>`;
+}
+function billHtml(){
+  const ym=S.by+'-'+pad(S.bm+1);
+  const pend=items.filter(i=>!i.billed).sort((a,b)=>b.date.localeCompare(a.date));
+  const bd=items.filter(i=>i.billed&&i.date.startsWith(ym)).sort((a,b)=>b.date.localeCompare(a.date));
+  const sum=bd.reduce((s,i)=>s+total(i),0);
+  return `<div class="sum"><div class="mh"><i data-a="bprev">‹</i><span>${S.by}년 ${S.bm+1}월 청구 합계</span><i data-a="bnext">›</i></div><b>${won(sum)}원</b><span style="color:#aaa">${bd.length}건</span></div>
+  <h3><span>수리 내용 입력 대기 ${pend.length}건</span></h3>${pend.map(billEdit).join('')||'<div class="empty">대기 중인 건이 없어요<br>민원을 접수하면 여기에 바로 나와요</div>'}
+  <h3><span>청구 완료</span></h3>${bd.map(billDone).join('')||'<div class="empty">이 달 청구 내역이 없어요</div>'}`;
+}
+function render(keepScroll){
+  const m=$('#main'),sc=m.scrollTop;
+  document.querySelectorAll('.tabs div').forEach(d=>d.classList.toggle('on',d.dataset.v===S.tab));
+  $('.fab').style.display=S.tab==='bill'?'none':'';
+  if(S.tab==='cal'){$('#ttl').textContent='건물관리';$('#sub').textContent=now.getMonth()+1+'월 '+now.getDate()+'일 '+'일월화수목금토'[now.getDay()];
+    m.innerHTML=searchBar()+`<div id="calbox">${calHtml()}</div><div id="lb">${listHtml()}</div>`;updList()}
+  else if(S.tab==='list'){$('#ttl').textContent='민원';$('#sub').textContent='전체 '+items.length+'건';m.innerHTML=searchBar()+`<div id="lb">${listHtml()}</div>`}
+  else{$('#ttl').textContent='청구내역';$('#sub').textContent='';m.innerHTML=billHtml()}
+  m.scrollTop=keepScroll?sc:0;
+}
+/* ---------- sheets ---------- */
+function sheet(html,cls){closeSheet();const o=document.createElement('div');o.className='ov '+(cls||'');o.id='ov';o.innerHTML=html;o.addEventListener('click',e=>{if(e.target===o)closeSheet()});$('#app').appendChild(o)}
+function closeSheet(){const o=$('#ov');if(o)o.remove()}
+function formSheet(id){
+  const i=id?get(id):{date:S.sel,building:'',unit:'',phone:'',issue:'',memo:''};
+  const names=[...new Set(items.map(x=>x.building))];
+  sheet(`<div class="sheet"><h2><span>${id?'민원 수정':'민원 접수'}</span><i data-a="close">✕</i></h2>
+  <label class="l">건물이름</label><input id="f_b" list="bl" value="${esc(i.building)}" placeholder="예) 행복빌라"><datalist id="bl">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+  <label class="l">호수</label><input id="f_u" value="${esc(i.unit)}" placeholder="예) 301호">
+  <label class="l">전화번호</label><input id="f_p" type="tel" value="${esc(i.phone)}" placeholder="010-0000-0000">
+  <label class="l">고장신고 내용</label><textarea id="f_i" rows="3" placeholder="예) 화장실 변기 물이 안 내려가요">${esc(i.issue)}</textarea>
+  <label class="l">메모 (시간 등 자유롭게)</label><textarea id="f_m" rows="2" placeholder="예) 오후 3시 이후 방문 가능">${esc(i.memo)}</textarea>
+  <label class="l">날짜</label><input id="f_d" type="date" value="${i.date}">
+  <button class="b y big" data-a="saveform" data-id="${id||''}">${id?'수정 저장':'접수하기'}</button></div>`);
+}
+function msgText(kind,i){
+  const h=`[${i.building} 관리실]\n${i.unit} `;
+  const cost=total(i)?`수리비 ${won(total(i))}원`:'';
+  if(kind==='recv')return h+`민원이 접수되었습니다.\n내용: ${i.issue}\n빠르게 처리하겠습니다.`;
+  if(kind==='visit')return h+`수리 방문 예정입니다.\n내용: ${i.issue}\n${i.memo?'참고: '+i.memo+'\n':''}방문 전 연락드리겠습니다.`;
+  if(kind==='fin')return h+`수리가 완료되었습니다.\n내용: ${i.issue}\n`+(cost?cost+'\n':'')+'감사합니다.';
+  return h+`수리비 청구 안내드립니다.\n내용: ${i.issue}\n`+(cost?cost+'\n':'')+'확인 부탁드립니다.';
+}
+let smsId=null,smsFromBill=false;
+function smsSheet(id,kind){
+  const i=get(id);smsId=id;kind=kind||(i.billed?'bill':i.done?'fin':'recv');
+  const T=[['recv','접수 확인'],['visit','방문 안내'],['fin','수리 완료'],['bill','청구 안내']];
+  sheet(`<div class="sheet"><h2><span>문자 보내기</span><i data-a="close">✕</i></h2>
+  <div class="s" style="margin-top:0">받는 사람: ${esc(i.building)} ${esc(i.unit)} · ${esc(i.phone)||'<b style="color:var(--r)">전화번호 없음</b>'}</div>
+  <label class="l">문구 선택</label><div class="tpl">${T.map(t=>`<span class="${t[0]===kind?'on':''}" data-a="tpl" data-v="${t[0]}">${t[1]}</span>`).join('')}</div>
+  <label class="l">내용 (직접 고칠 수 있어요)</label><textarea id="smsT" rows="8">${esc(msgText(kind,i))}</textarea>
+  <div class="btns"><button class="b" data-a="smscopy">복사</button><button class="b y" data-a="smssend" style="flex:2">💬 문자앱 열기</button></div>
+  <div class="s" style="text-align:center">PC에서는 문자앱이 안 열릴 수 있어요. 그땐 “복사”를 쓰세요.</div></div>`);
+}
+/* ---------- photos ---------- */
+let pend=null;
+function shrink(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const M=900,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};im.onerror=()=>res(null);im.src=r.result};r.readAsDataURL(file)})}
+$('#file').addEventListener('change',async e=>{
+  const fs=[...e.target.files];e.target.value='';if(!pend||!fs.length)return;
+  const i=get(pend.id);if(!i)return;i.photos=i.photos||[];
+  for(const f of fs){const s=await shrink(f);if(s)i.photos.push({k:pend.kind,s})}
+  save();render(true);
+});
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a,id=+t.dataset.id||null,v=t.dataset.v;
+  if(a==='tab'){S.tab=v;S.q='';S.chip='all';render()}
+  else if(a==='prev'){if(--S.m<0){S.m=11;S.y--}render(true)}
+  else if(a==='next'){if(++S.m>11){S.m=0;S.y++}render(true)}
+  else if(a==='bprev'){if(--S.bm<0){S.bm=11;S.by--}render(true)}
+  else if(a==='bnext'){if(++S.bm>11){S.bm=0;S.by++}render(true)}
+  else if(a==='pick'){S.sel=v;render(true)}
+  else if(a==='chip'){S.chip=v;render(true)}
+  else if(a==='add')formSheet();
+  else if(a==='edit')formSheet(id);
+  else if(a==='close')closeSheet();
+  else if(a==='saveform'){
+    const o={building:$('#f_b').value.trim(),unit:$('#f_u').value.trim(),phone:$('#f_p').value.trim(),issue:$('#f_i').value.trim(),memo:$('#f_m').value.trim(),date:$('#f_d').value||TODAY};
+    if(!o.building||!o.issue){toast('건물이름과 내용을 입력하세요');return}
+    let i;if(id){i=get(id);Object.assign(i,o)}else{i={id:Date.now(),done:false,billed:false,amount:0,partsName:'',photos:[],...o};items.push(i)}
+    if(!save())return;S.sel=i.date;const d=new Date(i.date);S.y=d.getFullYear();S.m=d.getMonth();closeSheet();if(!id){S.tab='bill';render()}else render(true);
+    if(!id)setTimeout(()=>{if(confirm('접수 확인 문자를 보낼까요?'))smsSheet(i.id,'recv')},150);
+  }
+  else if(a==='del'){const i=get(id);if(confirm(`${i.building} ${i.unit} 건을 삭제할까요?`)){items=items.filter(x=>x.id!==id);save();render(true)}}
+  else if(a==='done'){get(id).done=true;save();S.tab='bill';S.q='';S.chip='all';render();toast('청구내역에서 수리비를 입력하세요');setTimeout(()=>{const c=$('#c'+id);if(c)c.scrollIntoView({block:'start'})},50)}
+  else if(a==='gobill'){S.tab='bill';render();setTimeout(()=>{const c=$('#c'+id);if(c)c.scrollIntoView({block:'start'})},50)}
+  else if(a==='undo'){const i=get(id);i.done=false;save();render(true)}
+  else if(a==='savebill'){const i=get(id);i.billed=true;const d=new Date(i.date);S.by=d.getFullYear();S.bm=d.getMonth();save();render();toast('청구 저장됨')}
+  else if(a==='unbill'){get(id).billed=false;get(id).paid=false;save();render(true)}
+  else if(a==='addph'){pend={id,kind:t.dataset.kind};$('#file').click()}
+  else if(a==='rmph'){e.stopPropagation();if(confirm('이 사진을 지울까요?')){get(id).photos.splice(+t.dataset.k,1);save();render(true)}}
+  else if(a==='view'){const p=get(id).photos[+t.dataset.k];sheet(`<img src="${p.s}">`,'viewer')}
+  else if(a==='sms'){smsFromBill=v==='bill';smsSheet(id,v)}
+  else if(a==='paid'){const i=get(id);i.paid=!i.paid;save();render(true);toast(i.paid?'입금완료 처리했어요':'입금을 취소했어요')}
+  else if(a==='tpl'){const i=get(smsId);document.querySelectorAll('.tpl span').forEach(s=>s.classList.toggle('on',s===t));$('#smsT').value=msgText(v,i)}
+  else if(a==='smscopy'){const x=$('#smsT');x.select();(navigator.clipboard?navigator.clipboard.writeText(x.value):Promise.reject()).catch(()=>document.execCommand('copy')).then?.(()=>{});toast('복사했어요')}
+  else if(a==='smssend'){const i=get(smsId),b=encodeURIComponent($('#smsT').value);if(smsFromBill&&!i.billed){i.billed=true;save();render(true);toast('청구됨으로 표시했어요')}location.href='sms:'+i.phone.replace(/[^0-9+]/g,'')+'?&body='+b}
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){S.q=t.value;updList();return}
+  if(t.dataset.f){
+    const i=get(+t.dataset.id),f=t.dataset.f;
+    if(f==='partsName')i[f]=t.value;
+    else{const n=+t.value.replace(/\D/g,'')||0;i[f]=n;t.value=n?won(n):''}
+    save();const x=$('#t'+i.id);if(x)x.textContent=won(total(i))+'원';
+  }
+});
+render();
+</script></body></html>
