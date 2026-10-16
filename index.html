@@ -188,7 +188,7 @@ function render(keepScroll){
   document.querySelectorAll('.tabs div').forEach(d=>d.classList.toggle('on',d.dataset.v===S.tab));
   $('.fab').style.display=S.tab==='bill'?'none':'';
   if(S.tab==='cal'){$('#ttl').textContent='건물관리';$('#sub').textContent=now.getMonth()+1+'월 '+now.getDate()+'일 '+'일월화수목금토'[now.getDay()];
-    m.innerHTML=searchBar()+`<div id="calbox">${calHtml()}</div><div id="lb">${listHtml()}</div>`;updList()}
+    m.innerHTML=`<button class="b y big" style="margin:0 0 10px;padding:12px" data-a="aipull">📥 서버에서 가져오기 (AI가 넣은 민원)</button>`+searchBar()+`<div id="calbox">${calHtml()}</div><div id="lb">${listHtml()}</div>`;updList()}
   else if(S.tab==='list'){$('#ttl').textContent='민원';$('#sub').textContent='전체 '+items.length+'건';m.innerHTML=searchBar()+`<div id="lb">${listHtml()}</div>`}
   else{$('#ttl').textContent='청구내역';$('#sub').textContent='';m.innerHTML=billHtml()}
   m.scrollTop=keepScroll?sc:0;
