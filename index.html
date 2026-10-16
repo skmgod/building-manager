@@ -76,9 +76,10 @@ input:focus,textarea:focus{border-color:var(--k)}
 .tpl{display:flex;gap:6px;flex-wrap:wrap}.tpl span{background:#fff;border-radius:14px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer}.tpl .on{background:var(--k);color:var(--y)}
 .viewer{background:#000;align-items:center;justify-content:center}.viewer img{max-width:100%;max-height:100%}
 .toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--k);color:var(--y);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:800;z-index:40}
+.gear{background:none;border:0;font-size:22px;cursor:pointer;padding:2px 6px;color:var(--k)}
 </style></head><body>
 <div id="app">
-  <div class="top"><span class="brand"><span class="mark">SKM</span><span id="ttl">건물관리</span></span><small id="sub"></small></div>
+  <div class="top"><span class="brand"><span class="mark">SKM</span><span id="ttl">건물관리</span></span><span style="display:flex;align-items:center;gap:6px"><small id="sub"></small><button class="gear" data-a="ai" title="AI 연결">⚙</button></span></div>
   <div id="main"></div>
   <div class="fab" data-a="add">+</div>
   <div class="tabs">
@@ -249,6 +250,9 @@ document.addEventListener('click',e=>{
   else if(a==='add')formSheet();
   else if(a==='edit')formSheet(id);
   else if(a==='close')closeSheet();
+  else if(a==='ai')aiSheet();
+  else if(a==='aisave'){try{localStorage.setItem(INBOX_KEY,$('#ai_url').value.trim())}catch(e){}closeSheet();toast(inboxUrl()?'보관함 주소를 저장했어요':'보관함 주소를 지웠어요');autoPullInbox()}
+  else if(a==='aipull'){pullInbox().then(n=>{if(n>0){render(true);toast(`AI가 넣은 민원 ${n}건을 가져왔어요`)}else if(n===0)toast('새로 들어온 민원이 없어요');else toast('가져오지 못했어요. 인터넷과 주소를 확인하세요')})}
   else if(a==='saveform'){
     const o={building:$('#f_b').value.trim(),unit:$('#f_u').value.trim(),phone:$('#f_p').value.trim(),issue:$('#f_i').value.trim(),memo:$('#f_m').value.trim(),date:$('#f_d').value||TODAY};
     if(!o.building||!o.issue){toast('건물이름과 내용을 입력하세요');return}
@@ -281,5 +285,42 @@ document.addEventListener('input',e=>{
     save();const x=$('#t'+i.id);if(x)x.textContent=won(total(i))+'원';
   }
 });
+/* ---------- AI 보관함 → 민원 자동 가져오기 ---------- */
+const INBOX_KEY='building_mgmt_inbox';
+const inboxUrl=()=>{try{return localStorage.getItem(INBOX_KEY)||''}catch(e){return ''}};
+let pulling=false;
+async function pullInbox(){
+  const base=inboxUrl().trim().replace(/\/+$/,'');
+  if(!base||pulling)return 0;
+  pulling=true;
+  try{
+    const res=await fetch(base,{cache:'no-store'});
+    if(!res.ok)throw new Error('응답 오류 '+res.status);
+    const {items:list=[]}=await res.json();
+    const got=[];
+    for(const it of list){
+      items.push({id:Date.now()+Math.floor(Math.random()*100000),done:false,billed:false,paid:false,amount:0,partsName:'',photos:[],
+        building:it.building||'',unit:it.unit||'',phone:it.phone||'',issue:it.issue||'',memo:it.memo||'',date:it.date||TODAY});
+      got.push(it.id);
+    }
+    if(got.length){
+      if(!save())return 0;
+      await fetch(base+'/ack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:got})});
+    }
+    return got.length;
+  }catch(e){return -1}
+  finally{pulling=false}
+}
+function autoPullInbox(){pullInbox().then(n=>{if(n>0){render(true);toast(`AI가 넣은 민원 ${n}건을 가져왔어요`)}})}
+function aiSheet(){
+  sheet(`<div class="sheet"><h2><span>AI 보관함 연결</span><i data-a="close">✕</i></h2>
+  <div class="s" style="margin-top:0">AI에게 말한 민원이 여기로 들어와요. 보관함 주소(/inbox/ 로 끝나는 주소)를 넣고 저장하세요.</div>
+  <label class="l">보관함 주소</label><input id="ai_url" value="${esc(inboxUrl())}" placeholder="https://.../inbox/비밀키">
+  <button class="b y big" data-a="aisave">주소 저장</button>
+  <button class="b big" data-a="aipull">지금 가져오기</button></div>`);
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')autoPullInbox()});
 render();
+autoPullInbox();
 </script></body></html>
+
